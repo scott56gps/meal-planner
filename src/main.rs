@@ -84,6 +84,42 @@ pub fn extend_meals(meals: &Vec<Meal>, destination_size: usize) -> Result<Vec<Me
     Ok(cloned_meals)
 }
 
+/*
+ * Fill List
+ * Fills sublist with meals, appropriately spaced according to tolerance days.
+ * The sublist is the lengthened part of the original list, extended to the
+ * desired final size.
+ */
+pub fn fill_list(meals: &Vec<Meal>, iterator: usize, sub_list: &mut Vec<Option<Meal>>, offset: &mut usize) -> Vec<Option<Meal>> {
+    if iterator == meals.len() {
+        // Break out of iteration
+        return sub_list.to_vec();
+    }
+    let meal = &meals[iterator];
+    let max_multiplier = (sub_list.len() as u8 + meals.len() as u8) / meal.tolerance_days;  // Get how many times we want to multiply
+
+    let indexing_function = |i: &u8, new_offset: &usize| (((meal.tolerance_days * i) - meals.len() as u8) + *new_offset as u8) as usize;
+
+    for i in 1..max_multiplier {
+        let mut index = indexing_function(&i, &offset);
+
+        if sub_list[index] == None {
+            // Look for an open space
+            for n in index + 1..sub_list.len() {
+                index = indexing_function(&i, &n);
+                if sub_list[index] == None {
+                    *offset = n;
+                    break;
+                }
+            }
+        }
+
+        sub_list[index] = Some(meals[i as usize].clone());
+    }
+
+    fill_list(meals, iterator + 1, sub_list, offset)
+}
+
 fn generate_meals() -> Vec<Meal> {
     vec![
         Meal {
