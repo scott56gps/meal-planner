@@ -6,8 +6,8 @@ pub struct Meal {
     tolerance_days: u8,
 }
 
-impl Default for Meal {
-    fn default() -> Self {
+impl Meal {
+    fn empty() -> Self {
         Self { name: "".to_string(), tolerance_days: 0 }
     }
 }
@@ -62,26 +62,42 @@ fn main() {
 }
 
 pub fn extend_meals(meals: &Vec<Meal>, destination_size: usize) -> Result<Vec<Meal>, PlanningError> {
+    let mut meals = meals.clone();
     if destination_size < meals.len() {
         return Err(PlanningError::DaysShorterThanMeals);
     }
 
-    let mut cloned_meals = meals.clone();
-    cloned_meals.sort_by(|a, b| b.tolerance_days.cmp(&a.tolerance_days));
-    let original_len = cloned_meals.len();
+    // let mut cloned_meals = meals.clone();
+    // cloned_meals.sort_by(|a, b| b.tolerance_days.cmp(&a.tolerance_days));
+    // let original_len = cloned_meals.len();
 
-    let whole_repetitions = destination_size / original_len;
-    let remainder = destination_size % original_len;
+    // let whole_repetitions = destination_size / original_len;
+    // let remainder = destination_size % original_len;
 
-    cloned_meals.resize_with(destination_size, Default::default);
+    // cloned_meals.resize_with(destination_size, Default::default);
 
-    for _ in 1..whole_repetitions {
-        cloned_meals.extend_from_within(0..original_len);
-    }
 
-    cloned_meals.extend_from_within(0..remainder);
 
-    Ok(cloned_meals)
+    let filled_outer_list = fill_list(&meals, 0 as usize, &mut vec![None; destination_size - meals.len()], &mut 0).into_iter()
+        .map(|item| -> Meal {
+            match item {
+                Some(meal) => meal,
+                None => Meal::empty(),
+            }
+        })
+        .collect::<Vec<Meal>>();
+
+    // Combine the original and newly filled lists
+    meals.extend(filled_outer_list);
+    // meals.append(&mut filled_outer_list);
+
+    // for _ in 1..whole_repetitions {
+    //     cloned_meals.extend_from_within(0..original_len);
+    // }
+
+    // cloned_meals.extend_from_within(0..remainder);
+
+    Ok(meals)
 }
 
 /*
@@ -100,7 +116,7 @@ pub fn fill_list(meals: &Vec<Meal>, iterator: usize, sub_list: &mut Vec<Option<M
 
     let indexing_function = |i: &u8, new_offset: &usize| (((meal.tolerance_days * i) - meals.len() as u8) + *new_offset as u8) as usize;
 
-    for i in 1..max_multiplier {
+    for i in 0..max_multiplier {
         let mut index = indexing_function(&i, &offset);
 
         if sub_list[index] == None {
@@ -128,22 +144,23 @@ fn generate_meals() -> Vec<Meal> {
         }, Meal {
             name: String::from("PB&J"),
             tolerance_days: 1,
-        }, Meal {
-            name: String::from("Ham Sandwich"),
-            tolerance_days: 2,
-        }, Meal {
-            name: String::from("Hamburger"),
-            tolerance_days: 2,
-        }, Meal {
-            name: String::from("Bacon, Eggs, Toast"),
-            tolerance_days: 3,
-        }, Meal {
-            name: String::from("Arroz con Pollo"),
-            tolerance_days: 4,
-        }, Meal {
-            name: String::from("Scrambled Eggs"),
-            tolerance_days: 1,
-        }]
+        }// , Meal {
+        //     name: String::from("Ham Sandwich"),
+        //     tolerance_days: 2,
+        // }, Meal {
+        //     name: String::from("Hamburger"),
+        //     tolerance_days: 2,
+        // }, Meal {
+        //     name: String::from("Bacon, Eggs, Toast"),
+        //     tolerance_days: 3,
+        // }, Meal {
+        //     name: String::from("Arroz con Pollo"),
+        //     tolerance_days: 4,
+        // }, Meal {
+        //     name: String::from("Scrambled Eggs"),
+        //     tolerance_days: 1,
+        // }
+    ]
 }
 
 #[cfg(test)]
