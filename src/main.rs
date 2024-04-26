@@ -98,7 +98,7 @@ pub fn extend_meals(meals: &Vec<Meal>, destination_size: usize) -> Result<Vec<Me
     // cloned_meals.extend_from_within(0..remainder);
 
     Ok(meals)
-}
+
 
 /*
  * Fill List
