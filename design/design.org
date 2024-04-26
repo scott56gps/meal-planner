@@ -1,0 +1,108 @@
+* Meal Planner
+An app that suggests a meal plan, given a list of meals you would like to eat.
+
+** Permutation Algorithm
+:LOGBOOK:
+CLOCK: [2024-04-26 Fri 07:49]
+CLOCK: [2024-04-25 Thu 22:37]--[2024-04-25 Thu 22:45] =>  0:08
+CLOCK: [2024-04-25 Thu 21:45]--[2024-04-25 Thu 22:36] =>  0:51
+:END:
+Input:
+| 5 | 4 | 2 |
+N: 9
+
+We need to make 2 more permutations of the input list and then put them together
+to make the final list of length 9.  Each permutation should respect the
+tolerances of the list before it.
+
+1st Permutation:
+|   | 2 | 5 |
+
+2nd Permutation:
+| 2 | 4 |   |
+
+Final List:
+| 5 | 4 | 2 |   | 2 | 5 | 2 | 4 |   |
+
+                                 ^
+                                 Here, there should be a 2.
+
+                                 So, after making a permutation, we should try
+                                 to fill any spaces with any internal candidates
+
+                                 For example, here, we would put 2, since 2 is
+                                 less than the permutation length
+
+
+*** Tolerance Days is the same as length of Permutation Chunk
+**** Example 1: Matching tolerance day is first element
+Input:
+| 4 | 1 | 2 | 3 |
+N: 12
+
+1st Permutation:
+| 4 | 2 | 1 | 3 |
+^
+Notice how the 4 stays in the same place.  This is because 4 is the length of
+the permutation chunk.
+
+      ^
+      We place 2 here, because 4 is already occupying the first position, where
+      2 would normally go.
+
+2nd Permutation:
+| 4 | 1 | 3 | 2 |
+
+Final List:
+| 4 | 1 | 2 | 3 | 4 | 2 | 1 | 3 | 4 | 1 | 3 | 2 |
+
+**** Example 2: Matching tolerance day is not first element
+Input:
+| 1 | 4 | 2 | 3 |
+N: 12
+
+1st Permutation:
+| 2 | 1 | 4 | 3 |
+
+2nd Permutation:
+| *2 | *1 | 2 | 1 |
+^     ^
+We copy the 2 and 1 to these two cells.  We start with 2 because...?
+
+Final List:
+| 1 | 4 | 2 | 3 | 2 | 1 | 4 | 3 | *2 | *1 | 2 | 1 |
+
+Rule for inserting space instead of number in a Permutation:
+If the resulting position of the number IS LESS THAN
+(current position - offset), do not insert number.
+
+offset is computed thus:
+offset = number - Permutation length
+
+The offset is a kind of "lee way"
+
+For example, the offset of 4 is 0, because the length of the permutation is 4.
+This means that 4 has no lee way.  If it's destination index is anything less
+than its current index, then it is a no go.
+
+Another example is 3.  3's offset is 1, because 3 is 1 less than the permutation
+length, 4.  This means that the destination index can be 1 less than 3's current
+index.
+
+*** Final length is not a multiple of input length
+Input:
+| 2 | 3 | 1 |
+N: 8
+
+Simple.  We figure out the closest multiple to N that encapsulates N, which is 9.
+So, we need 2 Permutations and we'll just take the first 2 elements of the
+second Permutation instead of the whole chunk.
+
+1st P:
+| 1 | 3 | 2 |
+
+2nd P:
+| *1 | 1 | 3 |
+
+Final List:
+| 2 | 3 | 1 | 1 | 3 | 2 | *1 | 1 | 3 |
