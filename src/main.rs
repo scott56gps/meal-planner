@@ -41,7 +41,8 @@ impl Ord for Meal {
 
 #[derive(Debug)]
 pub enum PlanningError {
-    DaysShorterThanMeals
+    DaysShorterThanMeals,
+    RemainderGreaterThanList,
 }
 
 impl Error for PlanningError {}
@@ -61,22 +62,34 @@ fn main() {
     }
 }
 
+pub fn permute_meals(meals: &Vec<Meal>, n: &usize, remainder: Option<usize>) -> Result<Vec<Vec<Meal>>, PlanningError> {
+    if remainder.unwrap_or(0) > meals.len() {
+        return Err(PlanningError::RemainderGreaterThanList);
+    }
+    let permutation_size = meals.len();  // The length of each permutation
+
+    let mut permutations: Vec<Vec<Meal>> = vec![vec![]; *n];
+
+    // The first permutation is the passed in list
+    permutations.push(meals.to_vec());
+
+    // Now we fill in the rest of the permutations
+    for i in 1..*n {
+        let previous_permutation = &permutations[i - 1];
+
+        for source_idx in 0..permutation_size - 1 {
+            &previous_permutation[source_idx];
+        }
+    }
+
+    Ok(vec![vec![]])
+}
+
 pub fn extend_meals(meals: &Vec<Meal>, destination_size: usize) -> Result<Vec<Meal>, PlanningError> {
     let mut meals = meals.clone();
     if destination_size < meals.len() {
         return Err(PlanningError::DaysShorterThanMeals);
     }
-
-    // let mut cloned_meals = meals.clone();
-    // cloned_meals.sort_by(|a, b| b.tolerance_days.cmp(&a.tolerance_days));
-    // let original_len = cloned_meals.len();
-
-    // let whole_repetitions = destination_size / original_len;
-    // let remainder = destination_size % original_len;
-
-    // cloned_meals.resize_with(destination_size, Default::default);
-
-
 
     let filled_outer_list = fill_list(&meals, 0 as usize, &mut vec![None; destination_size - meals.len()], &mut 0).into_iter()
         .map(|item| -> Meal {
@@ -89,13 +102,6 @@ pub fn extend_meals(meals: &Vec<Meal>, destination_size: usize) -> Result<Vec<Me
 
     // Combine the original and newly filled lists
     meals.extend(filled_outer_list);
-    // meals.append(&mut filled_outer_list);
-
-    // for _ in 1..whole_repetitions {
-    //     cloned_meals.extend_from_within(0..original_len);
-    // }
-
-    // cloned_meals.extend_from_within(0..remainder);
 
     Ok(meals)
 }
@@ -165,7 +171,20 @@ fn generate_meals() -> Vec<Meal> {
 
 #[cfg(test)]
 mod tests {
+    use std::io::Error;
+
     use super::*;
+
+    #[test]
+    fn permute_list_offset_greater_than_length_err() {
+        let meals = generate_meals();
+        let desired_permutations = 3;
+        let remainder = meals.len() + 1;
+
+        let permutations_result = permute_list(&meals, &desired_permutations, &remainder);
+
+        assert!(permutations_result.is_err_and(|err| matches!(err, Error)));
+    }
 
     #[test]
     fn desired_size_shorter_than_meals_result_err() {
