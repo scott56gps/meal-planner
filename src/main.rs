@@ -39,6 +39,19 @@ impl Ord for Meal {
     }
 }
 
+
+/* A type representing a position in a permutation
+ * Some =>  A filled position in a permutation, with the given type
+ * Empty => An empty position in a permutation, where the given type *should*
+ *          be, but cannot because it does not conform to the rules of the
+ *          permutation.
+ */
+#[derive(Clone)]
+pub enum PermutationCell<T> {
+    Some(T),
+    Empty(Option<T>),
+}
+
 #[derive(Debug)]
 pub enum PlanningError {
     DaysShorterThanMeals,
@@ -50,6 +63,7 @@ impl Display for PlanningError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             PlanningError::DaysShorterThanMeals => write!(f, "Days to plan for are less than the number of meals"),
+            PlanningError::RemainderGreaterThanList => write!(f, "Remainder is greater than the length of the list"),
         }
     }
 }
@@ -68,17 +82,23 @@ pub fn permute_meals(meals: &Vec<Meal>, n: &usize, remainder: Option<usize>) -> 
     }
     let permutation_size = meals.len();  // The length of each permutation
 
-    let mut permutations: Vec<Vec<Meal>> = vec![vec![]; *n];
+    // We start out by creating our container of Empty permutation cells
+    let mut permutations: Vec<Vec<PermutationCell<Meal>>> = vec![vec![PermutationCell::Empty(None)]; *n];
 
     // The first permutation is the passed in list
-    permutations.push(meals.to_vec());
+    permutations.push(meals.iter().map(|meal| PermutationCell::Some(meal.clone())).collect());
 
     // Now we fill in the rest of the permutations
     for i in 1..*n {
         let previous_permutation = &permutations[i - 1];
+        // let new_permutation
 
         for source_idx in 0..permutation_size - 1 {
-            &previous_permutation[source_idx];
+            if let PermutationCell::Some(previous_meal) = &previous_permutation[source_idx] {
+                let destination_idx = previous_meal.tolerance_days - permutation_size as u8;
+
+                // TODO implement conflict logic
+            }
         }
     }
 
