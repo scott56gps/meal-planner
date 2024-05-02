@@ -46,10 +46,10 @@ impl Ord for Meal {
  *          be, but cannot because it does not conform to the rules of the
  *          permutation.
  */
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Copy)]
 pub enum PermutationCell<T> {
     Some(T),
-    Empty(Option<T>),
+    Empty,
 }
 
 #[derive(Debug)]
@@ -76,6 +76,10 @@ fn main() {
     }
 }
 
+pub fn find_first_empty_index(list: &[PermutationCell<Meal>]) -> Option<usize> {
+    list.into_iter().position(|cell| *cell == PermutationCell::Empty)
+}
+
 pub fn permute_meals(meals: &Vec<Meal>, n: &usize, remainder: Option<usize>) -> Result<Vec<Vec<Meal>>, PlanningError> {
     if remainder.unwrap_or(0) > meals.len() {
         return Err(PlanningError::RemainderGreaterThanList);
@@ -83,7 +87,7 @@ pub fn permute_meals(meals: &Vec<Meal>, n: &usize, remainder: Option<usize>) -> 
     let permutation_size = meals.len();  // The length of each permutation
 
     // We start out by creating our container of Empty permutation cells
-    let mut permutations: Vec<Vec<PermutationCell<Meal>>> = vec![vec![PermutationCell::Empty(None)]; *n];
+    let mut permutations: Vec<Vec<PermutationCell<Meal>>> = vec![vec![PermutationCell::Empty]; *n];
 
     // The first permutation is the passed in list
     permutations.push(meals.iter().map(|meal| PermutationCell::Some(meal.clone())).collect());
@@ -95,9 +99,19 @@ pub fn permute_meals(meals: &Vec<Meal>, n: &usize, remainder: Option<usize>) -> 
 
         for source_idx in 0..permutation_size - 1 {
             if let PermutationCell::Some(previous_meal) = &previous_permutation[source_idx] {
-                let destination_idx = previous_meal.tolerance_days - permutation_size as u8;
+                // The length of the rest of the list as measured from this index
+                let len_of_rest = permutation_size - source_idx;
 
-                // TODO implement conflict logic
+                // TODO Calculate min_index
+                // The lowest possible index this meal can be placed at in the
+                //  following permutation
+                let min_index = match previous_meal.tolerance_days <= len_of_rest as u8 {
+                    true => 0,
+                    false => previous_meal.tolerance_days - len_of_rest as u8,
+                };
+
+                // TODO implement insertion logic
+
             }
         }
     }
