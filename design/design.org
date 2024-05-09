@@ -158,3 +158,19 @@ Tolerance Days is greater than permutation length
 |   3 |   5 | 4 | 1 |
 |   1 | -4- | 5 | 3 |
 | -3- |   1 | 4 | 5 |
+
+**** IndexedReserve Object
+CountedReserve<T>
+--------------
+payload: T
+release_index: usize
+current_index: usize
+
+functions:
+decrease_index(by: usize) -> Option<T>
+Decreases the reserve by the specified amount of indices, returning the payload
+if the release_index was achieved.
+
+new(payload: T, release_index: usize, start_index: usize) -> CountedReserve<T>
+Constructs a new CountedReserve with the specified payload, release_index and
+starting index.

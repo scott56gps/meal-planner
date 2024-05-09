@@ -1,4 +1,4 @@
-use std::{error::Error, fmt::Display};
+use std::{error::Error, fmt::Display, ops::DerefMut};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Meal {
@@ -39,6 +39,26 @@ impl Ord for Meal {
     }
 }
 
+pub struct CountedReserve<T> {
+    payload: T,
+    release_index: usize,
+    current_index: usize,
+}
+
+impl<T> CountedReserve<T> {
+    pub fn new(payload: T, release_index: usize, start_index: usize) -> Self {
+        CountedReserve { payload, release_index, current_index: start_index }
+    }
+
+    pub fn decrease_index(&mut self, by: &usize) -> Option<&T> {
+        self.current_index = self.current_index - by;
+        if self.current_index <= self.release_index {
+            Some(&self.payload)
+        } else {
+            None
+        }
+    }
+}
 
 /* A type representing a position in a permutation
  * Some =>  A filled position in a permutation, with the given type
