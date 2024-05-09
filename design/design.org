@@ -3,6 +3,8 @@ An app that suggests a meal plan, given a list of meals you would like to eat.
 
 ** Permutation Algorithm
 :LOGBOOK:
+CLOCK: [2024-04-30 Tue 21:00]--[2024-04-30 Tue 23:19] =>  2:19
+CLOCK: [2024-04-30 Tue 13:21]--[2024-04-30 Tue 14:40] =>  1:19
 CLOCK: [2024-04-26 Fri 09:51]--[2024-04-26 Fri 11:30] =>  1:39
 CLOCK: [2024-04-26 Fri 07:49]--[2024-04-26 Fri 08:59] =>  1:10
 CLOCK: [2024-04-25 Thu 22:37]--[2024-04-25 Thu 22:45] =>  0:08
@@ -107,3 +109,52 @@ second Permutation instead of the whole chunk.
 
 Final List:
 | 2 | 3 | 1 | 1 | 3 | 2 | *1 | 1 | 3 |
+
+*** Conflicts
+Given a tile and a position in a permutation, if the tile's number is less than
+or equal to the permutation length, then the tile can be placed in the next
+permutation.
+
+The insertion, or destination index for the tile in the next permutation is
+calculated thus:
+
+destination_index = permutation_length - tolerance_days
+
+This destination index is the LEAST POSSIBLE INDEX the tile can be placed in the
+next permutation.  If the destination index is already filled, the tile must
+only be placed in an index greater than or equal to it.
+
+*** Empty Spaces
+:LOGBOOK:
+CLOCK: [2024-05-09 Thu 07:30]
+CLOCK: [2024-05-07 Tue 21:55]--[2024-05-08 Wed 00:32] =>  2:37
+:END:
+If a tile cannot be placed in a permutation, it is instead placed as an EMPTY
+tile.
+
+If there is (tolerance_days - length) space to the right of a tile, it can be
+placed in the next permutation.
+
+If a tile has to make another journey around the permutation, and it lands on a
+space less than the destination_index, it is placed as an EMPTY tile.
+
+^^The above, simplified, is:
+#+begin_src javascript
+  if (tolerance_days <= chunk_len && next_available_index >= legal_index) {
+      new_tile = FILLED(old_tile)
+  }
+  else if (next_available_index > tolerance_days % chunk_len) {
+      new_tile = FILLED(old_tile)
+  } else {
+      new_tile = EMPTY(old_tile)
+  }
+#+end_src
+
+For example:
+Tolerance Days is greater than permutation length
+-4- Represents an EMPTY cell, with 4 stored within it
+
+|   5 |   3 | 4 | 1 |
+|   3 |   5 | 4 | 1 |
+|   1 | -4- | 5 | 3 |
+| -3- |   1 | 4 | 5 |

@@ -94,6 +94,8 @@ pub fn permute_meals(meals: &Vec<Meal>, n: &usize, remainder: Option<usize>) -> 
         // let new_permutation
 
         for source_idx in 0..permutation_size - 1 {
+            let previous_meal = &previous_permutation[source_idx];
+
             if let PermutationCell::Some(previous_meal) = &previous_permutation[source_idx] {
                 let destination_idx = previous_meal.tolerance_days - permutation_size as u8;
 
